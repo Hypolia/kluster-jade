@@ -2,15 +2,16 @@ package hypolia.fr
 
 import com.rabbitmq.client.*
 import io.ktor.server.application.*
-import io.ktor.util.*
-import io.ktor.util.logging.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 @OptIn(DelicateCoroutinesApi::class)
-class RabbitMqModule (private val username: String, private val password: String) {
+class RabbitMqModule (
+    private val username: String,
+    private val password: String,
+    private val queueHandlers: Map<String, (String) -> Unit>
+) {
     private val factory = ConnectionFactory()
     private val connection: Connection
     private val channel: Channel
@@ -33,27 +34,24 @@ class RabbitMqModule (private val username: String, private val password: String
     }
 
     private fun startListening() {
-        println("Start listening")
+        for ((queue, handler) in queueHandlers) {
+            val channel = connection.createChannel()
+            channel.queueDeclare(queue, true, false, false, null)
 
-        channel.basicQos(1)
-
-        val consumer = object : DefaultConsumer(channel) {
-            override fun handleDelivery(
-                consumerTag: String?,
-                envelope: Envelope?,
-                properties: AMQP.BasicProperties?,
-                body: ByteArray?
-            ) {
-                val message = body?.toString(Charsets.UTF_8)
-                println("Received message on queue $message")
-
-                if (envelope != null) {
-                    channel.basicAck(envelope.deliveryTag, false)
+            val consumer = object : DefaultConsumer(channel) {
+                override fun handleDelivery(
+                    consumerTag: String?,
+                    envelope: Envelope?,
+                    properties: AMQP.BasicProperties?,
+                    body: ByteArray?
+                ) {
+                    val message = body?.toString(Charsets.UTF_8)
+                    handler.invoke(message.orEmpty())
                 }
             }
-        }
 
-        channel.basicConsume("create-pod", false, consumer)
+            channel.basicConsume(queue, true, consumer)
+        }
     }
 
     fun stopListening () {
@@ -62,10 +60,17 @@ class RabbitMqModule (private val username: String, private val password: String
 }
 
 fun Application.configureRabbitMqModule () {
-    val rabbitMqModule = RabbitMqModule("rabbit", "password")
+    val queueHandlers = mapOf<String, (String) -> Unit>(
+        "create-pod" to { message -> handleCreatePod(message) }
+    )
 
+    val rabbitMqModule = RabbitMqModule("rabbit", "password", queueHandlers)
 
     environment.monitor.subscribe(ApplicationStopping) {
         rabbitMqModule.stopListening()
     }
+}
+
+fun handleCreatePod(message: String) {
+    println(message)
 }
