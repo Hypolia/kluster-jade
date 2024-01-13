@@ -28,6 +28,13 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("io.ktor:ktor-gson:1.6.8")
+    implementation("io.minio:minio:8.5.7")
     implementation("ch.qos.logback:logback-classic")
     implementation("com.rabbitmq:amqp-client:5.13.1")
+    implementation("io.insert-koin:koin-ktor:3.5.3")
+    implementation("io.insert-koin:koin-logger-slf4j:3.5.3")
+    implementation("io.ktor:ktor-serialization:1.6.10")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-serialization-gson")
+    //implementation("io.github.cdimascio:dotenv-kotlin:4.4.0")
 }

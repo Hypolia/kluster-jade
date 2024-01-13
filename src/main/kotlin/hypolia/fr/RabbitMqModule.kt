@@ -15,7 +15,6 @@ class RabbitMqModule (
     private val factory = ConnectionFactory()
     private val connection: Connection
     private val channel: Channel
-    private val queues = listOf("create-pod")
 
     init {
         factory.host = "localhost"
@@ -61,7 +60,8 @@ class RabbitMqModule (
 
 fun Application.configureRabbitMqModule () {
     val queueHandlers = mapOf<String, (String) -> Unit>(
-        "create-pod" to { message -> handleCreatePod(message) }
+        "create-pod" to { message -> handleCreatePod(message) },
+        "create-pvc" to { message -> handleCreatePVC(message) }
     )
 
     val rabbitMqModule = RabbitMqModule("rabbit", "password", queueHandlers)
@@ -73,4 +73,8 @@ fun Application.configureRabbitMqModule () {
 
 fun handleCreatePod(message: String) {
     println(message)
+}
+
+fun handleCreatePVC(message: String) {
+
 }
