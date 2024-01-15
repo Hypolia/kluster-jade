@@ -36,5 +36,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization:1.6.10")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-gson")
+    implementation("io.kubernetes:client-java-api:15.0.0")
+    implementation("io.kubernetes:client-java:15.0.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.+")
     //implementation("io.github.cdimascio:dotenv-kotlin:4.4.0")
 }

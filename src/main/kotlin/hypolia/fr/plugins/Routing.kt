@@ -1,5 +1,6 @@
 package hypolia.fr.plugins
 
+import hypolia.fr.kubernetes.KubernetesService
 import hypolia.fr.s3.S3Service
 import hypolia.fr.user.UserService
 import io.ktor.server.application.*
@@ -11,10 +12,15 @@ data class BucketResponse (
     val data: ArrayList<String>
 )
 
+data class NamespaceResponse (
+    val data: List<String>
+)
+
 fun Application.configureRouting() {
 
     val userService by inject<UserService>()
     val s3Service by inject<S3Service>()
+    val kubernetesService by inject<KubernetesService>()
 
     routing {
         get("/") {
@@ -28,6 +34,13 @@ fun Application.configureRouting() {
             }
             call.respond(
                 BucketResponse(items)
+            )
+        }
+
+        get("/namespaces") {
+            val namespaces = kubernetesService.getNamespaces()
+            call.respond(
+                NamespaceResponse(namespaces)
             )
         }
     }
