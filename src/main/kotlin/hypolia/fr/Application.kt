@@ -2,7 +2,9 @@ package hypolia.fr
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hypolia.fr.kubernetes.KubernetesModule
+import hypolia.fr.listeners.createMinecraftServerListener
 import hypolia.fr.listeners.createPodListener
+import hypolia.fr.listeners.createPvcListener
 import hypolia.fr.plugins.*
 import hypolia.fr.rabbitmq.*
 import hypolia.fr.s3.MinioModule
@@ -27,7 +29,8 @@ data class Test (
 
 data class CreatePvcMessage (
     val key: String,
-    val namespace: String
+    val namespace: String,
+    val claimName: String
 )
 
 fun Application.module() {
@@ -65,14 +68,11 @@ fun Application.module() {
             })
     }
 
-    rabbitConsumer {
-        consume<Test>("create-pod") { body ->
-            println("Consumed task $body")
-            this.ack()
-        }
-    }
+
 
     createPodListener()
+    createPvcListener()
+    createMinecraftServerListener()
 }
 
 

@@ -11,8 +11,8 @@ fun Application.createPodListener() {
     val kubernetesService by inject<KubernetesService>()
 
     rabbitConsumer {
-        consume<CreatePvcMessage>("create-pvc") { body ->
-            println("[*] Create PVC $body")
+        consume<CreatePvcMessage>("create-pod") { body ->
+            println("[*] Create Pod ${body}")
 
             val namespaces = kubernetesService.getNamespaces()
 

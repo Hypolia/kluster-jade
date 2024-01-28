@@ -1,7 +1,6 @@
 package hypolia.fr.s3
 
-import io.minio.MinioClient
-import io.minio.Result
+import io.minio.*
 import io.minio.errors.MinioException
 import io.minio.messages.Bucket
 import io.minio.messages.Item
@@ -33,5 +32,9 @@ class S3Client(private val minioConfig: MinioConfig) {
 
     public fun getBuckets(): MutableList<Bucket>? {
         return minioClient.listBuckets()
+    }
+
+    public fun getClient(): MinioClient {
+        return minioClient
     }
 }
